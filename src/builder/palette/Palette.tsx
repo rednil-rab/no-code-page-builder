@@ -1,3 +1,4 @@
+import { cn } from "../../lib/cn";
 import { useBuilderStore } from "../store/useBuilderStore";
 import type { BuilderNode, NodeType } from "../types";
 
@@ -48,7 +49,7 @@ export function Palette() {
       {NODE_TYPES.map(({ type, label, defaultProps }) => (
         <button
           key={type}
-          className="text-left px-3 py-2 rounded-md text-sm text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 cursor-pointer"
+          className={cn("text-left px-3 py-2 rounded-md text-sm text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 cursor-pointer")}
           onClick={() => handleAdd(type, defaultProps)}
         >
           {label}
