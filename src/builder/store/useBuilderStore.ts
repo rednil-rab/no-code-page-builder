@@ -9,7 +9,7 @@ interface BuilderState {
   // actions
   setSelectedNode: (id: string | null) => void;
   addNode: (parentId: string, node: BuilderNode) => void;
-  updateNode: (id: string, props: Record<string, unknown>) => void;
+  updateNode: (id: string, props: Record<string, string | number | boolean>) => void;
   deleteNode: (id: string) => void;
 }
 
