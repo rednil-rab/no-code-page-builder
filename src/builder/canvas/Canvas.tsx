@@ -7,7 +7,7 @@ export function Canvas() {
 
   return (
     <div
-      className="flex-1 min-h-screen p-6 bg-slate-100"
+      className="flex-1 min-h-screen p-6 bg-slate-100 relative"
       onClick={() => setSelectedNode(null)}
     >
       <RenderNode node={tree} />
