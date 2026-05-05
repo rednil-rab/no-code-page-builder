@@ -5,11 +5,11 @@ import type { BuilderNode, NodeType } from "../types";
 const NODE_TYPES: {
   type: NodeType;
   label: string;
-  defaultProps: Record<string, unknown>;
+  defaultProps: Record<string, string | number | boolean>;
 }[] = [
-  { type: "container", label: "Container", defaultProps: {} },
-  { type: "text", label: "Text", defaultProps: { text: "Text block" } },
-  { type: "button", label: "Button", defaultProps: { label: "Click me" } },
+  // { type: "container", label: "Container", defaultProps: {} },
+  { type: "text", label: "Text", defaultProps: { text: "Text block", span: 'col-span-2', padding: 'p-2', height: 'h-10' } },
+  { type: "button", label: "Button", defaultProps: { label: "Click me", bg: 'bg-blue', span: 'col-span-1', padding: 'p-2', height: 'h-10' } },
 ];
 
 function findNode(tree: BuilderNode, id: string): BuilderNode | null {
@@ -26,7 +26,7 @@ export function Palette() {
   const selectedNodeId = useBuilderStore((s) => s.selectedNodeId);
   const addNode = useBuilderStore((s) => s.addNode);
 
-  const handleAdd = (type: NodeType, defaultProps: Record<string, unknown>) => {
+  const handleAdd = (type: NodeType, defaultProps: Record<string, string | number | boolean>) => {
     let parentId = "root";
     if (selectedNodeId) {
       const selected = findNode(tree, selectedNodeId);
