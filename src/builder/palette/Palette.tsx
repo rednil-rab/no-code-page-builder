@@ -1,3 +1,5 @@
+import { useDraggable } from "@dnd-kit/core";
+
 import { cn } from "../../lib/cn";
 import { useBuilderStore } from "../store/useBuilderStore";
 import type { BuilderNode, NodeType } from "../types";
@@ -7,9 +9,8 @@ const NODE_TYPES: {
   label: string;
   defaultProps: Record<string, string | number | boolean>;
 }[] = [
-  // { type: "container", label: "Container", defaultProps: {} },
-  { type: "text", label: "Text", defaultProps: { text: "Text block", span: 'col-span-2', padding: 'p-2', height: 'h-10' } },
-  { type: "button", label: "Button", defaultProps: { label: "Click me", bg: 'bg-blue', span: 'col-span-1', padding: 'p-2', height: 'h-10' } },
+  { type: "text", label: "Text", defaultProps: { text: "Text block", span: "col-span-2", padding: "p-2", height: "h-10" } },
+  { type: "button", label: "Button", defaultProps: { label: "Click me", bg: "bg-blue", span: "col-span-1", padding: "p-2", height: "h-10" } },
 ];
 
 function findNode(tree: BuilderNode, id: string): BuilderNode | null {
@@ -19,6 +20,35 @@ function findNode(tree: BuilderNode, id: string): BuilderNode | null {
     if (found) return found;
   }
   return null;
+}
+
+interface PaletteItemProps {
+  type: NodeType;
+  label: string;
+  defaultProps: Record<string, string | number | boolean>;
+  onAdd: () => void;
+}
+
+function PaletteItem({ type, label, defaultProps, onAdd }: PaletteItemProps) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `palette-${type}`,
+    data: { source: "palette", nodeType: type, label, defaultProps },
+  });
+
+  return (
+    <button
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={cn(
+        "text-left px-3 py-2 rounded-md text-sm text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 cursor-grab",
+        isDragging && "opacity-40"
+      )}
+      onClick={onAdd}
+    >
+      {label}
+    </button>
+  );
 }
 
 export function Palette() {
@@ -32,12 +62,12 @@ export function Palette() {
       const selected = findNode(tree, selectedNodeId);
       if (selected?.type === "container") parentId = selectedNodeId;
     }
-
     addNode(parentId, {
       id: crypto.randomUUID(),
       type,
       props: defaultProps,
       children: [],
+      indexMap: {},
     });
   };
 
@@ -47,13 +77,13 @@ export function Palette() {
         Components
       </h2>
       {NODE_TYPES.map(({ type, label, defaultProps }) => (
-        <button
+        <PaletteItem
           key={type}
-          className={cn("text-left px-3 py-2 rounded-md text-sm text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 cursor-pointer")}
-          onClick={() => handleAdd(type, defaultProps)}
-        >
-          {label}
-        </button>
+          type={type}
+          label={label}
+          defaultProps={defaultProps}
+          onAdd={() => handleAdd(type, defaultProps)}
+        />
       ))}
     </aside>
   );

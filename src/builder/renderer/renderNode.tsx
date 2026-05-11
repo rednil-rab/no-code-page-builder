@@ -1,3 +1,5 @@
+import { rectSortingStrategy, SortableContext, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import React, { useState } from "react";
 
 import { cn } from "../../lib/cn";
@@ -26,7 +28,7 @@ const TextNode: React.FC<{ node: BuilderNode; selectedClass: string; onClick: (e
     setEditing(false);
     updateNode(node.id, { text });
   };
-  
+
   if (editing) {
     return (
       <input
@@ -38,8 +40,9 @@ const TextNode: React.FC<{ node: BuilderNode; selectedClass: string; onClick: (e
       />
     );
   }
+
   return (
-    <p className={selectedClass} onClick={onClick} onDoubleClick={handleDoubleClick}>
+    <p className={cn(selectedClass, "user-select-none")} onClick={onClick} onDoubleClick={handleDoubleClick}>
       {(node.props.text as string) ?? "Text"}
     </p>
   );
@@ -49,30 +52,55 @@ export function RenderNode({ node }: Props) {
   const selectedNodeId = useBuilderStore((s) => s.selectedNodeId);
   const setSelectedNode = useBuilderStore((s) => s.setSelectedNode);
 
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
+    id: node.id,
+    data: { source: "canvas", nodeId: node.id },
+    disabled: node.type === "container",
+  });
+
+  const sortableStyle: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
+
   const isSelected = selectedNodeId === node.id;
-  const selectedClass = cn(isSelected && "outline-2 outline-blue-500 outline-offset-2");
+  const selectedClass = cn(isSelected && "border border-blue-500", "rounded-md p-1 shadow-sm");
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedNode(node.id);
   };
 
+  const { span, padding, height, bg } = node.props;
+
   switch (node.type) {
     case "container":
       return (
-        <div className={selectedClass} onClick={handleClick}>
-          {node.children.map((child) => (
-            <RenderNode key={child.id} node={child} />
-          ))}
+        <div className={cn(selectedClass, "grid grid-cols-3 gap-4 row-end row-start min-h-screen")} onClick={handleClick}>
+          <SortableContext items={node.children.map((c) => c.id)} strategy={rectSortingStrategy}>
+            {node.children.map((child) => (
+              <RenderNode key={child.id} node={child} />
+            ))}
+          </SortableContext>
         </div>
       );
     case "text":
       return (
-        <TextNode node={node} selectedClass={selectedClass} onClick={handleClick} />
+        <div ref={setNodeRef} style={sortableStyle} {...attributes} {...listeners} className={cn(span as string)}>
+          <TextNode node={node} selectedClass={cn(selectedClass, padding, height, bg)} onClick={handleClick} />
+        </div>
       );
     case "button":
       return (
-        <button className={selectedClass} onClick={handleClick}>
+        <button
+          ref={setNodeRef}
+          style={sortableStyle}
+          {...attributes}
+          {...listeners}
+          className={cn(selectedClass, span, padding, height, bg)}
+          onClick={handleClick}
+        >
           {(node.props.label as string) ?? "Button"}
         </button>
       );

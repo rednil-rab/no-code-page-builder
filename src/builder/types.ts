@@ -5,4 +5,5 @@ export interface BuilderNode {
   type: NodeType;
   props: Record<string, string | number | boolean>;
   children: BuilderNode[];
+  indexMap: Record<string, number>;
 }
