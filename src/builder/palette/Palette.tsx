@@ -1,6 +1,8 @@
 import { useDraggable } from "@dnd-kit/core";
+import { useState } from "react";
 
 import { cn } from "../../lib/cn";
+import { ExportModal } from "../export/ExportModal";
 import { useBuilderStore } from "../store/useBuilderStore";
 import type { BuilderNode, NodeType } from "../types";
 
@@ -55,6 +57,7 @@ export function Palette() {
   const tree = useBuilderStore((s) => s.tree);
   const selectedNodeId = useBuilderStore((s) => s.selectedNodeId);
   const addNode = useBuilderStore((s) => s.addNode);
+  const [showExport, setShowExport] = useState(false);
 
   const handleAdd = (type: NodeType, defaultProps: Record<string, string | number | boolean>) => {
     let parentId = "root";
@@ -72,19 +75,30 @@ export function Palette() {
   };
 
   return (
-    <aside className="w-48 shrink-0 border-r border-slate-200 bg-white p-4 flex flex-col gap-2">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-        Components
-      </h2>
-      {NODE_TYPES.map(({ type, label, defaultProps }) => (
-        <PaletteItem
-          key={type}
-          type={type}
-          label={label}
-          defaultProps={defaultProps}
-          onAdd={() => handleAdd(type, defaultProps)}
-        />
-      ))}
-    </aside>
+    <>
+      <aside className="w-48 shrink-0 border-r border-slate-200 bg-white p-4 flex flex-col gap-2">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+          Components
+        </h2>
+        {NODE_TYPES.map(({ type, label, defaultProps }) => (
+          <PaletteItem
+            key={type}
+            type={type}
+            label={label}
+            defaultProps={defaultProps}
+            onAdd={() => handleAdd(type, defaultProps)}
+          />
+        ))}
+        <div className="mt-auto pt-4 border-t border-slate-100">
+          <button
+            className="w-full px-3 py-2 rounded-md text-sm text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200"
+            onClick={() => setShowExport(true)}
+          >
+            Export JSON
+          </button>
+        </div>
+      </aside>
+      {showExport && <ExportModal onClose={() => setShowExport(false)} />}
+    </>
   );
 }
