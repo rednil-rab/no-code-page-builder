@@ -59,9 +59,10 @@ export function RenderNode({ node }: Props) {
   });
 
   const sortableStyle: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
+    transform: isDragging ? undefined : CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.4 : 1,
+    opacity: isDragging ? 0 : 1,
+    height: "fit-content",
   };
 
   const isSelected = selectedNodeId === node.id;
